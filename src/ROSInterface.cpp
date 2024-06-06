@@ -19,8 +19,9 @@ void ROSInterface::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
   
   cv_bridge::CvImagePtr img_ptr = toCvCopy(msg, const std::string& encoding = std::string());
+  //not sure if this works
+  cv::Mat _img = Mat(const IplImage *img_ptr, bool copyData = false);
 
-  
   _filter.processImage(_img);
 
   cv::Mat _blue = _filter.getBlueImage();
@@ -33,6 +34,8 @@ void ROSInterface::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   sensor_msgs::Image green_msg;
   sensor_msgs::Image red_msg;
   sensor_msgs::Image bgr_msg;
+
+  
   
 }
 
