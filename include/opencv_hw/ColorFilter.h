@@ -26,6 +26,11 @@ public:
     void findRed();
     void findBGR();
 
+    cv::Mat getBlueImage();
+    cv::Mat getGreenImage();
+    cv::Mat getRedImage();
+    cv::Mat getBGRImage();
+
     void showResult();
 };
 

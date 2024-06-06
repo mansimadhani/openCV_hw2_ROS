@@ -10,7 +10,7 @@ void ColorFilter::processImage(cv::Mat img) {
     findGreen();
     findRed();
     findBGR();
-    //showResult();
+    showResult();
 }
 
 void ColorFilter::split() {
@@ -163,28 +163,28 @@ void ColorFilter::findBGR() {
 
 }
 
-cv::Mat getBlueImage() {
+cv::Mat ColorFilter::getBlueImage() {
     findBlue();
     cv::Mat _blueImg = cv::Mat::zeros(_frame.rows, _frame.cols, CV_8UC1);
     copyTo(_frame, _blueImg, _blueMask);
     return _blueImg;
 }
 
-cv::Mat getGreenImage() {
+cv::Mat ColorFilter::getGreenImage() {
     findGreen();
     cv::Mat _greenImg = cv::Mat::zeros(_frame.rows, _frame.cols, CV_8UC1);
     copyTo(_frame, _greenImg, _greenMask);
     return _greenImg;
 }
 
-cv::Mat getRedImage() {
+cv::Mat ColorFilter::getRedImage() {
     findRed();
     cv::Mat _redImg = cv::Mat::zeros(_frame.rows, _frame.cols, CV_8UC1);
     copyTo(_frame, _redImg, _redMask);
     return _redImg;
 }
 
-cv::Mat getBGRImage() {
+cv::Mat ColorFilter::getBGRImage() {
     findBlue();
     findGreen();
     findRed();
