@@ -1,0 +1,8 @@
+prefix=/u/mansi/catkin_ws/opencv_hw/build/devel
+
+Name: opencv_hw
+Description: Description of opencv_hw
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

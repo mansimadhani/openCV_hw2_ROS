@@ -1,9 +1,13 @@
 #include <stdio.h>
-#include "ROSInterface.h"
+#include "/u/mansi/catkin_ws/src/opencv_hw/include/opencv_hw/ROSInterface.h"
+#include <ros/ros.h>
+#include "/u/mansi/catkin_ws/src/opencv_hw/include/opencv_hw/ColorFilter.h"
 
 int main(int argc, char **argv) {
-    ros::init();
-    ColorFilter *cf = new ColorFilter();
-    ROSInterface *ri = new ROSInterface(cf);
+    ros::init(argc, argv, "opencv_hw");
+    ros::NodeHandle handle; 
+    ColorFilter cf;
+    ROSInterface ri(cf, handle);
     ros::spin();
+    return 0;
 }

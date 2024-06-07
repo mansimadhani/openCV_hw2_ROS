@@ -30,6 +30,7 @@ public:
     cv::Mat getGreenImage();
     cv::Mat getRedImage();
     cv::Mat getBGRImage();
+    cv::Mat getMask(int c1, int c2);
 
     void showResult();
 };

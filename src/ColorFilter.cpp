@@ -1,4 +1,4 @@
-#include "ColorFilter.h"
+#include "/u/mansi/catkin_ws/src/opencv_hw/include/opencv_hw/ColorFilter.h"
 
 using namespace std;
 using namespace cv;
@@ -73,8 +73,8 @@ void ColorFilter::showResult() {
     
 
     //PROBLEM 6: ALL THREE
-    imshow("all three", _chans[0]);
-    waitKey(100);
+    //imshow("all three", _chans[0]);
+    //waitKey(100);
 }
 
 void ColorFilter::findBlue() {
@@ -85,7 +85,7 @@ void ColorFilter::findBlue() {
     threshold(_chans[0], _chans[0], 50, 255, cv::THRESH_BINARY);
 
     //4.3.3
-    vector<cv::Mat> contours;
+    vector<vector<cv::Point>> contours;
     vector<cv::Vec4i> hierarchy;
     findContours(_chans[0], contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
     int highest = 0;
@@ -95,8 +95,8 @@ void ColorFilter::findBlue() {
             highest = i;
         }
     }
-    _blueMask = cv::Mat::zeros(_frame.rows, _frame.cols, CV_8UC1);
-    drawContours(_blueMask, contours, highest, cv::Scalar(255), cv::LineTypes::FILLED, 8, hierarchy);
+    _blueMask = cv::Mat::zeros(_frame.size(), CV_8UC1);
+    drawContours(_blueMask, contours, highest, cv::Scalar(255), cv::FILLED, 8, hierarchy);
     
     //display blue cup
     copyTo(_frame, _chans[0], _blueMask);
@@ -110,7 +110,7 @@ void ColorFilter::findGreen() {
 
     threshold(_chans[1], _chans[1], 50, 255, cv::THRESH_BINARY);
 
-    vector<cv::Mat> contours;
+    vector<vector<cv::Point>> contours;
     vector<cv::Vec4i> hierarchy;
     findContours(_chans[1], contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
     int highest = 0;
@@ -120,8 +120,8 @@ void ColorFilter::findGreen() {
             highest = i;
         }
     }
-    _greenMask = cv::Mat::zeros(_frame.rows, _frame.cols, CV_8UC1);
-    drawContours(_greenMask, contours, highest, cv::Scalar(255), cv::LineTypes::FILLED, 8, hierarchy);
+    _greenMask = cv::Mat::zeros(_frame.size(), CV_8UC1);
+    drawContours(_greenMask, contours, highest, cv::Scalar(255), cv::FILLED, 8, hierarchy);
 
     //display green cup
     copyTo(_frame, _chans[1], _greenMask);
@@ -136,9 +136,9 @@ void ColorFilter::findRed() {
 
     threshold(_chans[2], _chans[2], 50, 255, cv::THRESH_BINARY);
 
-    vector<cv::Mat> contours;
+    vector<vector<cv::Point>> contours;
     vector<cv::Vec4i> hierarchy;
-    findContours(_chans[2], contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
+    findContours(_chans[2], contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
     int highest = 0;
 
     for (int i = 0; i < contours.size(); i++) {
@@ -146,8 +146,8 @@ void ColorFilter::findRed() {
             highest = i;
         }
     }
-    _redMask = cv::Mat::zeros(_frame.rows, _frame.cols, CV_8UC1);
-    drawContours(_redMask, contours, highest, cv::Scalar(255), cv::LineTypes::FILLED, 8, hierarchy);
+    _redMask = cv::Mat::zeros(_frame.size(), CV_8UC1);
+    drawContours(_redMask, contours, highest, cv::Scalar(255), cv::FILLED, 8, hierarchy);
 
     //display red cup
     copyTo(_frame, _chans[2], _redMask);
@@ -156,38 +156,72 @@ void ColorFilter::findRed() {
 }
 
 void ColorFilter::findBGR() {
-    cv::Mat _finalMask = cv::Mat::zeros(_frame.rows, _frame.cols, CV_8UC1);
-    cv::bitwise_or(_blueMask, _greenMask, _finalMask);
-    cv::bitwise_or(_finalMask, _redMask, _finalMask);
+    cv::Mat _finalMask = cv::Mat::zeros(_frame.size(), CV_8UC1);
+    cv::Mat _bMask = getMask(0, 2);
+    cv::Mat _gMask = getMask(1, 0);
+    cv::Mat _rMask = getMask(2, 1);
+    cv::bitwise_or(_bMask, _gMask, _finalMask);
+    cv::bitwise_or(_finalMask, _rMask, _finalMask);
     copyTo(_frame, _chans[0], _finalMask);
 
 }
 
 cv::Mat ColorFilter::getBlueImage() {
-    findBlue();
-    cv::Mat _blueImg = cv::Mat::zeros(_frame.rows, _frame.cols, CV_8UC1);
-    copyTo(_frame, _blueImg, _blueMask);
+    cv::Mat _bMask = getMask(0, 2);
+    cv::Mat _blueImg = cv::Mat::zeros(_frame.size(), CV_8UC1);
+    copyTo(_frame, _blueImg, _bMask);
     return _blueImg;
 }
 
 cv::Mat ColorFilter::getGreenImage() {
-    findGreen();
-    cv::Mat _greenImg = cv::Mat::zeros(_frame.rows, _frame.cols, CV_8UC1);
-    copyTo(_frame, _greenImg, _greenMask);
+    cv::Mat _gMask = getMask(1, 0);
+    cv::Mat _greenImg = cv::Mat::zeros(_frame.size(), CV_8UC1);
+    copyTo(_frame, _greenImg, _gMask);
     return _greenImg;
 }
 
 cv::Mat ColorFilter::getRedImage() {
-    findRed();
-    cv::Mat _redImg = cv::Mat::zeros(_frame.rows, _frame.cols, CV_8UC1);
-    copyTo(_frame, _redImg, _redMask);
+    cv::Mat _rMask = getMask(2, 1);
+    cv::Mat _redImg = cv::Mat::zeros(_frame.size(), CV_8UC1);
+    copyTo(_frame, _redImg, _rMask);
     return _redImg;
 }
 
 cv::Mat ColorFilter::getBGRImage() {
-    findBlue();
-    findGreen();
-    findRed();
-    findBGR();
-    return _chans[0];
+    cv:Mat _bgrImage = cv::Mat::zeros(_frame.size(), CV_8UC1);
+    cv::Mat _finalMask = cv::Mat::zeros(_frame.size(), CV_8UC1);
+    cv::Mat _bMask = getMask(0, 2);
+    cv::Mat _gMask = getMask(1, 0);
+    cv::Mat _rMask = getMask(2, 1);
+    cv::bitwise_or(_bMask, _gMask, _finalMask);
+    cv::bitwise_or(_finalMask, _rMask, _finalMask);
+    copyTo(_frame, _bgrImage, _finalMask);
+    return _bgrImage;
+}
+
+cv::Mat ColorFilter::getMask(int c1, int c2) {
+    subtract(_chans[c1], _chans[c2], _chans[c1]); //bMinusR
+
+    //4.3.2
+    threshold(_chans[c1], _chans[c1], 50, 255, cv::THRESH_BINARY);
+
+    //4.3.3
+    vector<vector<cv::Point>> contours;
+    vector<cv::Vec4i> hierarchy;
+    findContours(_chans[c1], contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+    int highest = 0;
+
+    for (int i = 0; i < contours.size(); i++) {
+        if (contourArea(contours[i]) > contourArea(contours[highest])) {
+            highest = i;
+        }
+    }
+    cv::Mat _Mask = cv::Mat::zeros(_frame.size(), CV_8UC1);
+    drawContours(_Mask, contours, highest, cv::Scalar(255), cv::FILLED, 8, hierarchy);
+    
+    //display blue cup
+    //copyTo(_frame, _chans[c1], _Mask);
+
+    split();  
+    return _Mask;
 }

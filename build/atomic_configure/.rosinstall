@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /u/mansi/catkin_ws/opencv_hw/build/devel/setup.sh
